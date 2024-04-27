@@ -15,24 +15,11 @@ class Elevator {
     this.floorTravelTime = 2000; // 电梯在楼层间移动时间（ms）
     this.state = 0; // 0代表正常运行, 1代表正在前往某一个楼层, 2代表是开门中, 3代表预备电梯!!!
     this.destination_floor = 0; // 目标楼层, 只有在this.state == 1 才有效 从0 - 11
+    this.color = 0;
   }
 
   move() {
-    if (this.state == 3) {
-      if (this.destination_floor == this.currentFloor) {
-        // 已经到达指定楼层,进行开门接客
-        // 不动
-      } else {
-        this.direction =
-          this.destination_floor - this.currentFloor > 0 ? 1 : -1; // 设置新方向
-        if (this.direction === 1) {
-          // 移动
-          ++this.currentFloor;
-        } else if (this.direction === -1) {
-          --this.currentFloor;
-        }
-      }
-    } else if (this.state == 1) {
+    if (this.state == 1 || this.state == 3) {
       // 第一种,让电梯前往起始点,接乘客
       // console.log("第一个数为" + this.destination_floor + "第二个数为" + this.currentFloor);
       if (this.destination_floor == this.currentFloor) {
@@ -295,6 +282,8 @@ var time = ref("7:00 - 8:00   上班高峰期,正常调度");
 
 var text = "人流量多时，采用直接调度方法，增加吞吐量";
 
+
+var lashID;
 function changeFun() {
   // 控制台的大确认
   // 让所有电梯都停止,清除楼层所有数据!
@@ -311,6 +300,9 @@ function changeFun() {
   }
 
   console.log(peoQuantity);
+
+
+  clearInterval(lashID)
   if (peoQuantity.value == "much") {
     // 常规调用
     // console.log("1111");
@@ -319,62 +311,99 @@ function changeFun() {
     // console.log("000000");
     if (workDay.value == "yes") {
       // console.log("11111");
+      var intervalIsss;
       if (workTime.value == "gowork") {
-
-        // floor_peo.value[7] = [0,3,1];
-        // floor_peo.value[3] = [1,6,9];
-
-
+        var wss = 0;
+        intervalIsss = setInterval(() => {
+            wss++
+            var floor_add = getRandomInt(11, 9); // 那一个楼层增加
+            var go_floor = getRandomInt(11, 0);
+            if (floor_peo.value[floor_add].length < 8 && go_floor != (11 - floor_add)) {
+                floor_peo.value[floor_add].push(go_floor);
+                let direction_call = go_floor - floor_add > 0 ? 0 : 1; // 为正数则为up,为负数则为down
+                controller.addPeopleCall(11 - floor_add, direction_call); // 人员分配
+            }
+            if(wss == 15) clearInterval(intervalIsss); 
+        },1000)
         text = "人流量少时且在上班时期，我们将三台电梯移动到1楼等待";
         console.log("22222");
         // 把3台电梯调到1楼过去等
         controller.elevators[1].state = 3;
+        controller.elevators[1].color = 1;
         controller.elevators[1].destination_floor = 0;
 
         controller.elevators[2].state = 3;
+        controller.elevators[2].color = 1;
         controller.elevators[2].destination_floor = 0;
 
         controller.elevators[5].state = 3;
+        controller.elevators[5].color = 1;
         controller.elevators[5].destination_floor = 0;
+
         time = ref('8:30 - 11:00  工作期间,人流量较少,电梯自适应调度')
         
+        // var if_tempy = true;
+        var sb_sb_sb_sb 
+        sb_sb_sb_sb = setInterval(()=>{
+            var everyTmpy = true;
+            for (let i=0;i<floor_peo.value.length;++i) {
+                if(floor_peo.value[i].length != 0) everyTmpy = false;
+            }
 
+            if(everyTmpy) {
+                // 楼层清空了!! 调度电梯
+                controller.elevators[1].state = 1;
+                controller.elevators[2].state = 1;
+                controller.elevators[5].state = 1;
+
+                controller.elevators[1].destination_floor = 0;
+                controller.elevators[2].destination_floor = 5;
+                controller.elevators[5].destination_floor = 11;
+            }
+            clearInterval(sb_sb_sb_sb)
+        }, 200) 
 
       } else if (workTime.value == "gohome") {
         // 把1台电梯调取4楼, 7楼, 11楼
         text =
           "人流量少时且在下班时期，我们将三台电梯移动到4楼、7楼、11楼进行等待";
+        clearInterval(intervalIsss); 
+        
 
-       
-
-        // for (let i = 0; i < 20; ++i) {
-        //     var floor_add = getRandomInt(6, 0); // 那一个楼层增加
-        //     var go_floor = getRandomInt(11, 0);
-        //     if (floor_peo.value[floor_add].length < 8 && go_floor != (11 - floor_add)) {
-        //         floor_peo.value[floor_add].push(go_floor);
-        //         let direction_call = go_floor - floor_add > 0 ? 0 : 1; // 为正数则为up,为负数则为down
-        //         controller.addPeopleCall(11 - floor_add, direction_call); // 人员分配
-        //     }
-        // }
-
-
+        var wssss = 0;
+        var intervalId = setInterval(() => {
+            wss++;
+            var floor_add = getRandomInt(7, 0); // 那一个楼层增加
+            var go_floor = getRandomInt(11, 0);
+            if (floor_peo.value[floor_add].length < 8 && go_floor != (11 - floor_add)) {
+                floor_peo.value[floor_add].push(go_floor);
+                let direction_call = go_floor - floor_add > 0 ? 0 : 1; // 为正数则为up,为负数则为down
+                controller.addPeopleCall(11 - floor_add, direction_call); // 人员分配
+            }
+            if(wss == 30) clearInterval(intervalId); 
+        }, 1000)
+        controller.elevators[1].color = 0;
+        controller.elevators[2].color = 0;
+        controller.elevators[5].color = 0;
 
 
         controller.elevators[0].state = 3;
+        controller.elevators[0].color = 1;
         controller.elevators[0].destination_floor = 3;
 
         controller.elevators[1].state = 3;
+        controller.elevators[1].color = 1;
         controller.elevators[1].destination_floor = 6;
 
         controller.elevators[3].state = 3;
+        controller.elevators[3].color = 1;
         controller.elevators[3].destination_floor = 10;
 
         time = ref('11:00 - 11:30  下班高峰期,电梯自适应调度')
       }
     } else if (workDay.value == "no") {
       // 预测以前人流,把1台电梯调取6楼, 1楼
-      text =
-        "人流量少时且不在工作时，根据以往数据，我们将两台电梯移动到1楼、6楼";
+    //   text = "";
 
 
 
@@ -390,30 +419,8 @@ function changeFun() {
 controller.start();
 // 模拟现实，楼层呼叫的问题！！
 
-// for (let i = 0; i < 8; ++i) {
-// //   var floor_add = getRandomInt(11, 0); // 那一个楼层增加
-//   var go_floor = getRandomInt(11, 0);
-//   if (floor_peo.value[11].length < 8 && go_floor != 0) {
-//     floor_peo.value[11].push(go_floor);
-//     let direction_call = go_floor - 11 > 0 ? 0 : 1; // 为正数则为up,为负数则为down
-//     controller.addPeopleCall(0, direction_call); // 人员分配
-//   }
-// }
-
-// for (let i = 0; i < 3; ++i) {
-// //   var floor_add = getRandomInt(11, 0); // 那一个楼层增加
-//   var go_floor = getRandomInt(11, 0);
-//   if (floor_peo.value[10].length < 8 && go_floor != 10) {
-//     floor_peo.value[10].push(go_floor);
-//     let direction_call = go_floor - 10 > 0 ? 0 : 1; // 为正数则为up,为负数则为down
-//     controller.addPeopleCall(1, direction_call); // 人员分配
-//   }
-// }
-
-
-
-for (let i = 0; i < 20; ++i) {
-  var floor_add = getRandomInt(11, 0); // 那一个楼层增加
+for (let i = 0; i < 15; ++i) {
+  var floor_add = getRandomInt(11, 9); // 那一个楼层增加
   var go_floor = getRandomInt(11, 0);
   if (floor_peo.value[floor_add].length < 8 && go_floor != (11 - floor_add)) {
     floor_peo.value[floor_add].push(go_floor);
@@ -422,13 +429,13 @@ for (let i = 0; i < 20; ++i) {
   }
 }
 
-setInterval(function () {
+lashID = setInterval(function () {
   // console.log('添加数据');
   if (true) {
     // 也就是人流量多的情况，进行分配
     var floor_add = getRandomInt(11, 0); // 那一个楼层增加
     var go_floor = getRandomInt(11, 0);
-    if (floor_peo.value[floor_add].length < 8 && go_floor != floor_add) {
+    if (floor_peo.value[floor_add].length < 8 && go_floor != (11 - floor_add)) {
       floor_peo.value[floor_add].push(go_floor);
       let direction_call = go_floor - floor_add > 0 ? 0 : 1; // 为正数则为up,为负数则为down
       controller.addPeopleCall(11 - floor_add, direction_call); // 人员分配
@@ -475,7 +482,7 @@ function getRandomInt(max, min) {
             class="ele"
             v-for="(item, index) in controller.elevators"
             :key="index"
-            :class="item.state == 3 ? 'blue' : ''"
+            :class="item.color == 1 ? 'blue' : ''"
           >
             <div class="text_1">电梯所在楼层:{{ item.currentFloor + 1 }}</div>
             <!-- <div class="text_1">现有目的: {{ item.destinations }}</div>
